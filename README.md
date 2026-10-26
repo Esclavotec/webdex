@@ -60,12 +60,16 @@ Una Pokédex que, en vez de Pokémon, cataloga **webs de juegos fan de Pokémon*
 ```
 index.html               ← la app ya construida (logos y voces incrustados), para el artefacto
 dist/index.html          ← la misma app con <!doctype>: es lo que publica Render y se abre con doble clic
-src/webdex.template.html ← código fuente con marcadores {{LOGO_...}} y {{VOICES}}
+dist/assets/icon-*.png   ← iconos PNG publicados (Safari, pantalla de inicio)
+src/webdex.template.html ← código fuente con marcadores {{LOGO_...}}, {{ICON_SVG}} y {{VOICES}}
 assets/                  ← logos originales de cada web
+assets/icon.svg, icon-32.png, icon-180.png ← icono de Pokédex en pixel art (los crea icon.js)
 assets/voz/              ← MP3 de ElevenLabs, uno por entrada (los crea voces.js)
+icon.js                  ← dibuja el icono (cuadrícula de 16×16) y genera el SVG y los PNG
 voces.js                 ← genera los MP3 con la API de ElevenLabs
+firestore.rules          ← reglas de seguridad del tablón
 build.sh                 ← genera index.html y dist/ a partir de src/ + assets/
-serve.js                 ← servidor local: node serve.js → http://localhost:8765
+serve.js                 ← servidor local que sirve dist/ como Render: node serve.js → http://localhost:8765
 ```
 
 ```mermaid
@@ -220,8 +224,14 @@ En el artefacto de Claude el tablón no puede conectarse, porque bloquea las con
 | **v4**: tablón en móvil a todo el ancho, sin scroll lateral | ✅ |
 | **v4.1**: sin la regla `hidden` del artefacto (como en Render), el panel empieza cerrado y se cierra con ✕ y con Escape | ✅ |
 | **v4.1**: tras enviar, el botón cuenta de 10 a 0 y se reactiva; se mantienen nombre y tipo; un segundo envío de otro tipo funciona | ✅ |
+| **v4.2**: el icono SVG, el PNG de 32 px y el apple-touch-icon de 180 px están en `<head>` y cargan; `theme-color` rojo; consola sin errores | ✅ |
 
 ## Cambios
+
+- **v4.2**
+  - Icono de Pokédex en pixel art en la pestaña del navegador, en Safari y en la pantalla de inicio del móvil; barra del navegador móvil en rojo.
+  - `icon.js` dibuja el icono a partir de una cuadrícula de 16×16 (para cambiarlo, edita `GRID` y ejecuta `node icon.js && bash build.sh`).
+  - `dist/index.html` coloca el título, las metas y los iconos en `<head>`; `serve.js` sirve `dist/` igual que Render.
 
 - **v4.1**
   - Arreglo: el Centro Pokémon no se podía cerrar en la web pública. Se añade la regla global `[hidden] { display: none !important; }`.

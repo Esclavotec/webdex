@@ -15,6 +15,7 @@ embed LOGO_POKEBONK      assets/pokebonk.ico      image/x-icon
 embed LOGO_POKECLASH     assets/pokeclash.png     image/png
 embed LOGO_SURVIVORTIERS assets/survivortiers.svg image/svg+xml
 embed LOGO_POKEISAAC     assets/pokeisaac.png     image/png
+embed ICON_SVG           assets/icon.svg          image/svg+xml   # icono de la pestaña (icon.js)
 
 # Voces de ElevenLabs: cada assets/voz/<slug>.mp3 que exista se incrusta en VOICE_MP3.
 voices=""
@@ -30,5 +31,16 @@ echo "index.html generado ($(wc -c < index.html) bytes)"
 
 # Copia independiente con <!doctype> para abrirla con doble clic (sin servidor).
 mkdir -p dist
-{ printf '<!doctype html>\n<html lang="es">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n</head>\n<body>\n'; cat index.html; printf '</body>\n</html>\n'; } > dist/index.html
+# Lo que va antes del primer <style> (título, metas, iconos y fuentes) se coloca en <head>.
+head_end=$(grep -n -m1 '^<style>' index.html | cut -d: -f1)
+{ printf '<!doctype html>\n<html lang="es">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
+  head -n $((head_end - 1)) index.html
+  printf '</head>\n<body>\n'
+  tail -n +"$head_end" index.html
+  printf '</body>\n</html>\n'; } > dist/index.html
 echo "dist/index.html generado"
+
+# Iconos PNG (Safari, pantalla de inicio del móvil) junto a la web publicada.
+mkdir -p dist/assets
+cp assets/icon-32.png assets/icon-180.png dist/assets/
+echo "iconos copiados a dist/assets/"

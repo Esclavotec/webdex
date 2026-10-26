@@ -15,7 +15,7 @@ embed LOGO_POKEBONK      assets/pokebonk.ico      image/x-icon
 embed LOGO_POKECLASH     assets/pokeclash.png     image/png
 embed LOGO_SURVIVORTIERS assets/survivortiers.svg image/svg+xml
 embed LOGO_POKEISAAC     assets/pokeisaac.png     image/png
-embed LOGO_POKEMONROULETTE assets/pokemonroulette.ico image/x-icon
+embed LOGO_POKEMONROULETTE assets/pokemonroulette.svg image/svg+xml  # sprite propio (icon.js); el .ico original de la web queda en assets/
 embed ICON_SVG          assets/icon.svg          image/svg+xml   # icono de la pestaña (icon.js)
 
 # Voces de ElevenLabs: cada assets/voz/<slug>.mp3 que exista se incrusta en VOICE_MP3.

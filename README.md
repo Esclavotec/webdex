@@ -68,7 +68,7 @@ src/webdex.template.html ← código fuente con marcadores {{LOGO_...}}, {{ICON_
 assets/                  ← logos originales de cada web
 assets/icon.svg, icon-32.png, icon-180.png ← icono de Pokédex en pixel art (los crea icon.js)
 assets/voz/              ← MP3 de ElevenLabs, uno por entrada (los crea voces.js)
-icon.js                  ← dibuja el icono (cuadrícula de 16×16) y genera el SVG y los PNG
+icon.js                  ← dibuja los sprites de 16×16 (icono de la Pokédex y logo de la ruleta) y genera SVG y PNG
 voces.js                 ← genera los MP3 con la API de ElevenLabs
 firestore.rules          ← reglas de seguridad del tablón
 build.sh                 ← genera index.html y dist/ a partir de src/ + assets/
@@ -229,13 +229,19 @@ En el artefacto de Claude el tablón no puede conectarse, porque bloquea las con
 | **v4.1**: tras enviar, el botón cuenta de 10 a 0 y se reactiva; se mantienen nombre y tipo; un segundo envío de otro tipo funciona | ✅ |
 | **v4.2**: el icono SVG, el PNG de 32 px y el apple-touch-icon de 180 px están en `<head>` y cargan; `theme-color` rojo; consola sin errores | ✅ |
 | **v4.3**: la ficha 008 carga con logo, especie, tipos y creador; ▶ va de 007 a 008 y vuelve a 001; los filtros Azar y Aventura muestran solo Pokémon Roulette; la tecla 008 está activa; suena su MP3 de Luisa (23 s); móvil sin scroll lateral | ✅ |
+| **v4.4**: el logo de ruleta carga nítido y cuadrado en la pantalla LCD (214×214 en escritorio); el icono de la Pokédex no cambia; móvil sin scroll lateral; consola sin errores | ✅ |
 
 ## Cambios
+
+- **v4.4**
+  - Logo propio para **Pokémon Roulette**: ruleta de 16×16 px con 9 porciones en los colores de generación de la web (de Kanto a Paldea), Poké Ball en el centro y flecha dorada. Es la variante A diseñada en Claude Design.
+  - `icon.js` ahora genera varios sprites: el icono de la Pokédex (cuadrícula a mano) y la ruleta (calculada con la misma fórmula del diseño) → `assets/pokemonroulette.svg`. `node icon.js --preview` guarda una vista ampliada para revisarla.
+  - El `.ico` original de la web se conserva en `assets/pokemonroulette.ico`.
 
 - **v4.3**
   - Nueva entrada **Nº008 Pokémon Roulette** (André Xavier Martinez), con su voz de Luisa.
   - Nuevos géneros: **Azar** y **Aventura**.
-  - Nota: el logo es el icono que usa la propia web, que es el logo por defecto de Angular (el framework con el que está hecha).
+  - (En la v4.3 el logo era el icono de la propia web, el genérico de Angular; en la v4.4 se sustituye por un sprite propio.)
 
 - **v4.2**
   - Icono de Pokédex en pixel art en la pestaña del navegador, en Safari y en la pantalla de inicio del móvil; barra del navegador móvil en rojo.

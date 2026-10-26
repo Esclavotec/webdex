@@ -150,7 +150,11 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .key:disabled { background: var(--key-off); border-color: #3e353f; color: #c9bfc9; cursor: default; }
 .empty-note { margin: 0; font-family: var(--f-lcd); font-size: 19px; color: #ffd9da; }
 
-.foot { color: var(--muted); font-size: 13px; line-height: 1.5; max-width: 75ch; }
+.foot { color: var(--muted); font-size: 13px; line-height: 1.5; max-width: 75ch; display: grid; gap: 8px; }
+.foot p { margin: 0; }
+.foot .mission { color: var(--fg); font-size: 15px; border-left: 4px solid var(--shell); padding-left: 12px; }
+.foot .mission strong { color: var(--gold); }
+.foot a { color: var(--fg); }
 
 @media (max-width: 780px) {
   .dex { grid-template-columns: 1fr; }
@@ -280,7 +284,11 @@ button { font: inherit; color: inherit; cursor: pointer; }
     </section>
   </main>
 
-  <p class="foot">Proyecto fan sin ánimo de lucro. Cada web pertenece a su creador; Pokémon es marca de Nintendo, Creatures y GAME FREAK. Voces generadas con <a href="https://elevenlabs.io" target="_blank" rel="noopener">ElevenLabs</a> (o, si falta alguna, con la voz de tu navegador); no es la voz original de la serie. Navega con ◀ ▶ o con las flechas del teclado.</p>
+  <footer class="foot">
+    <!-- Misión del proyecto -->
+    <p class="mission">WebDex es un proyecto <strong>sin ánimo de lucro</strong> cuyo único objetivo es recopilar todos y cada uno de los juegos inspirados en Pokémon publicados en la web.</p>
+    <p>Cada web pertenece a su creador; Pokémon es marca de Nintendo, Creatures y GAME FREAK. Voces generadas con <a href="https://elevenlabs.io" target="_blank" rel="noopener">ElevenLabs</a> (o, si falta alguna, con la voz de tu navegador); no es la voz original de la serie. Navega con ◀ ▶ o con las flechas del teclado.</p>
+  </footer>
 </div>
 
 <script>

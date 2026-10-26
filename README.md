@@ -124,6 +124,8 @@ Necesitas Node 18 o superior y una clave de API de ElevenLabs (en elevenlabs.io:
 
 Si Luisa no está en tu cuenta, el script no gasta créditos: te dice que la añadas desde la Voice Library.
 
+> **Plan Free:** ElevenLabs no permite usar voces de la Voice Library (como Luisa) por la API en el plan gratuito; responde con el error `402 paid_plan_required`. Los 7 MP3 actuales se generaron **desde la web de ElevenLabs** (Texto a voz → Luisa → Multilingual v2), pegando los textos que muestra `node voces.js --dry`. Después se guardaron en `assets/voz/<slug>.mp3` y se ejecutó `bash build.sh`. Con un plan de pago, `node voces.js` lo hace todo solo.
+
 Otras opciones:
 - `node voces.js --dry`: muestra los textos sin gastar créditos.
 - `node voces.js --force`: regenera todos los MP3.
@@ -187,8 +189,15 @@ Todo dura unos 2,4 segundos y está en la función `boot()`, con las clases CSS 
 
 | **v3.1**: `voces.js` con un ElevenLabs simulado: sin clave avisa; sin Luisa en la cuenta explica cómo añadirla y no genera nada; con Luisa genera los 7 MP3 con su ID; al repetir no regenera | ✅ |
 
+| **v3.2**: las 7 fichas reproducen su MP3 de Luisa (20–24 s cada uno); 🔇 lo corta; consola sin errores | ✅ |
+| **v3.2**: el pie muestra la misión del proyecto | ✅ |
+
 ## Cambios
 
+- **v3.2**
+  - Voces reales de Luisa (ElevenLabs) en las 7 entradas, incrustadas en la página (unos 3,5 MB en total).
+  - Pie de página con la misión: *"WebDex es un proyecto sin ánimo de lucro cuyo único objetivo es recopilar todos y cada uno de los juegos inspirados en Pokémon publicados en la web."*
+  - `serve.js` admite `PORT` y sirve `.mp3`.
 - **v3.1**: voz de ElevenLabs "Luisa – Smooth, Friendly and Engaging", buscada por nombre.
 
 - **v3**

@@ -1,0 +1,656 @@
+<title>WebDex</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Chakra+Petch:wght@400;600;700&display=swap">
+<style>
+/* Layout: una Pokédex abierta de dos mitades (izquierda: lente + pantalla del logo + cruceta;
+   derecha: pantalla de datos + ficha de entrenador + teclado azul de entradas). En móvil se apilan.
+   Look único y deliberado (carcasa roja sobre fondo oscuro), así que no hay variante clara. */
+:root {
+  color-scheme: dark;
+  --bg: #17141a;          /* mesa oscura detrás del aparato */
+  --shell: #d8232f;       /* carcasa roja */
+  --shell-dark: #9e1621;  /* sombras y bisagra */
+  --shell-light: #f25a5f; /* brillo de la carcasa */
+  --lcd: #a9c49a;         /* pantalla LCD verde */
+  --lcd-ink: #1d2a1c;     /* tinta de la LCD */
+  --screen: #1f2a33;      /* pantalla de datos (derecha) */
+  --screen-ink: #d9f1e4;
+  --screen-dim: #84a597;
+  --lens: #3fb6f2;        /* lente azul */
+  --key: #2f7fd8;         /* teclas azules */
+  --key-off: #6b5e6f;
+  --bezel: #ece6e1;       /* marco blanco de las pantallas */
+  --fg: #f4ece8;
+  --muted: #b9a9ae;
+  --gold: #f2c14e;
+  --f-pixel: "Press Start 2P", "Courier New", monospace;
+  --f-lcd: "VT323", "Courier New", monospace;
+  --f-body: "Chakra Petch", "Segoe UI", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  background: radial-gradient(ellipse at 50% 0%, #2a2230 0%, var(--bg) 60%);
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: var(--f-body);
+  font-size: 15px;
+  padding-block: 28px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+.wrap { max-width: 1040px; margin: 0 auto; display: grid; gap: 20px; }
+
+/* ---------- Encabezado ---------- */
+.brand { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; }
+.brand h1 { margin: 0; font-family: var(--f-pixel); font-size: clamp(18px, 3.4vw, 28px); letter-spacing: .04em; color: var(--fg); text-shadow: 3px 3px 0 var(--shell-dark); }
+.brand h1 span { color: var(--shell-light); }
+.brand p { margin: 0; color: var(--muted); font-size: 14px; }
+
+/* ---------- Aparato ---------- */
+.dex { display: grid; grid-template-columns: 1fr 26px 1fr; align-items: stretch; }
+.half { background: linear-gradient(160deg, var(--shell-light) 0%, var(--shell) 22%, var(--shell) 80%, var(--shell-dark) 100%); border: 3px solid #5c0d14; padding: 18px; display: grid; gap: 16px; align-content: start; min-width: 0; box-shadow: inset 0 -6px 0 rgba(0,0,0,.18), 0 18px 40px rgba(0,0,0,.45); }
+.left { border-radius: 18px 6px 6px 18px; }
+.right { border-radius: 6px 18px 18px 6px; }
+.hinge { background: repeating-linear-gradient(180deg, var(--shell-dark) 0 22px, #5c0d14 22px 26px); border-block: 3px solid #5c0d14; margin-block: 34px; }
+
+/* lente y LEDs */
+.top { display: flex; align-items: center; gap: 14px; }
+.lens { width: 68px; height: 68px; border-radius: 50%; background: radial-gradient(circle at 34% 30%, #e8f8ff 0 12%, var(--lens) 30%, #0f5e95 100%); border: 5px solid var(--bezel); box-shadow: 0 0 0 3px #5c0d14; flex: none; transition: filter .2s; }
+.lens.talking { animation: blink .35s infinite alternate; }
+@keyframes blink { to { filter: brightness(1.6) saturate(1.4); box-shadow: 0 0 0 3px #5c0d14, 0 0 22px var(--lens); } }
+.leds { display: flex; gap: 8px; align-self: flex-start; padding-top: 4px; }
+.led { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #5c0d14; }
+.led.r { background: #ff4b4b; } .led.y { background: #ffd23f; } .led.g { background: #4cd964; }
+
+/* pantalla del logo */
+.bezel { background: var(--bezel); border-radius: 8px 8px 8px 30px; padding: 16px 18px 12px; border: 3px solid #5c0d14; display: grid; gap: 10px; }
+.bezel-dots { display: flex; justify-content: center; gap: 10px; }
+.bezel-dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--shell); }
+.lcd { position: relative; background: var(--lcd); border: 3px solid #4d4a48; border-radius: 4px; aspect-ratio: 4 / 3; max-width: 100%; display: grid; place-items: center; overflow: hidden; }
+.lcd::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, rgba(0,0,0,.07) 0 2px, transparent 2px 4px); pointer-events: none; }
+.lcd img { max-width: 78%; max-height: 72%; object-fit: contain; image-rendering: auto; filter: drop-shadow(3px 3px 0 rgba(29,42,28,.35)); }
+.lcd img.pixel { image-rendering: pixelated; }
+.lcd .num { position: absolute; top: 8px; left: 10px; font-family: var(--f-pixel); font-size: 11px; color: var(--lcd-ink); }
+.lcd .flash { position: absolute; inset: 0; background: #f4fbe9; opacity: 0; pointer-events: none; }
+.lcd.swap .flash { animation: flash .32s ease-out; }
+@keyframes flash { 0% { opacity: .9; } 100% { opacity: 0; } }
+.bezel-foot { display: flex; align-items: center; justify-content: space-between; }
+.speaker { display: grid; gap: 3px; }
+.speaker i { display: block; width: 34px; height: 3px; background: #5c0d14; border-radius: 2px; }
+.round-btn { width: 30px; height: 30px; border-radius: 50%; background: var(--shell); border: 3px solid #5c0d14; }
+
+/* nombre + controles */
+.name-plate { background: var(--lcd); color: var(--lcd-ink); border: 3px solid #4d4a48; border-radius: 4px; padding: 10px 12px; font-family: var(--f-pixel); font-size: clamp(13px, 2vw, 17px); line-height: 1.4; overflow-wrap: anywhere; display: grid; gap: 4px; }
+.name-plate small { font-family: var(--f-lcd); font-size: 20px; line-height: 1; color: #3d5a3a; }
+.guide { justify-self: start; background: none; border: 2px dashed var(--screen-dim); border-radius: 4px; color: var(--screen-ink); font-family: var(--f-lcd); font-size: 19px; padding: 4px 10px; }
+.guide:hover { border-color: var(--screen-ink); }
+.controls { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; }
+.voice { display: flex; gap: 8px; flex-wrap: wrap; }
+.pill { background: #2b2b2b; color: var(--fg); border: 2px solid #111; border-radius: 999px; padding: 6px 12px; font-family: var(--f-pixel); font-size: 9px; letter-spacing: .06em; box-shadow: 0 3px 0 #111; }
+.pill:active { transform: translateY(2px); box-shadow: 0 1px 0 #111; }
+.pill[aria-pressed="true"] { background: #3b3b3b; color: var(--gold); }
+.dpad { display: grid; grid-template-columns: repeat(3, 30px); grid-template-rows: repeat(3, 30px); }
+.dpad button, .dpad span { background: #222; border: none; }
+.dpad .u { grid-area: 1/2; border-radius: 5px 5px 0 0; } .dpad .d { grid-area: 3/2; border-radius: 0 0 5px 5px; }
+.dpad .l { grid-area: 2/1; border-radius: 5px 0 0 5px; } .dpad .r { grid-area: 2/3; border-radius: 0 5px 5px 0; }
+.dpad .c { grid-area: 2/2; }
+.dpad button { color: #777; font-size: 12px; }
+.dpad button:hover { color: var(--fg); }
+.dpad button:active { background: #000; }
+
+/* ---------- Mitad derecha ---------- */
+.screen { background: var(--screen); color: var(--screen-ink); border: 3px solid #0d1216; border-radius: 6px; padding: 14px 16px; display: grid; gap: 12px; box-shadow: inset 0 0 0 2px #2c3b47; min-width: 0; }
+.screen h2 { margin: 0; font-family: var(--f-pixel); font-size: 10px; letter-spacing: .1em; color: var(--screen-dim); }
+.types { display: flex; flex-wrap: wrap; gap: 6px; }
+.type { font-family: var(--f-pixel); font-size: 9px; letter-spacing: .06em; text-transform: uppercase; padding: 6px 10px 5px; border-radius: 4px; color: #fff; text-shadow: 1px 1px 0 rgba(0,0,0,.45); border: 2px solid rgba(0,0,0,.3); }
+.desc { margin: 0; font-family: var(--f-lcd); font-size: 22px; line-height: 1.15; max-width: 60ch; min-height: 5.6em; }
+.desc .caret { display: inline-block; width: .5em; background: var(--screen-ink); animation: caret 1s steps(1) infinite; }
+@keyframes caret { 50% { opacity: 0; } }
+.stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 14px; margin: 0; }
+.stats div { display: grid; gap: 2px; min-width: 0; }
+.stats dt { font-family: var(--f-pixel); font-size: 8px; letter-spacing: .1em; color: var(--screen-dim); }
+.stats dd { margin: 0; font-family: var(--f-lcd); font-size: 21px; overflow-wrap: anywhere; }
+.visit { justify-self: start; display: inline-flex; align-items: center; gap: 8px; background: var(--gold); color: #2b1d00; font-family: var(--f-pixel); font-size: 10px; text-decoration: none; padding: 10px 14px; border-radius: 4px; border: 2px solid #6d5000; box-shadow: 0 3px 0 #6d5000; }
+.visit:hover { filter: brightness(1.08); }
+
+/* ficha de entrenador (creador) */
+.trainer { display: grid; grid-template-columns: 76px 1fr; gap: 12px; align-items: center; background: linear-gradient(135deg, #f7efe0, #e8dcc6); color: #2a2320; border: 3px solid #5c0d14; border-radius: 8px; padding: 10px 12px; position: relative; overflow: hidden; }
+.trainer::before { content: "TARJETA DE ENTRENADOR"; position: absolute; top: 0; right: 0; background: var(--shell); color: #fff; font-family: var(--f-pixel); font-size: 7px; letter-spacing: .08em; padding: 4px 8px; border-bottom-left-radius: 6px; }
+.trainer canvas { width: 76px; height: 76px; image-rendering: pixelated; background: #fff; border: 3px solid #2a2320; border-radius: 4px; }
+.trainer .info { display: grid; gap: 3px; min-width: 0; padding-top: 10px; padding-right: 34px; }
+.trainer .id { font-family: var(--f-pixel); font-size: 8px; color: #7b6a5c; }
+.trainer .who { font-family: var(--f-pixel); font-size: 12px; line-height: 1.35; overflow-wrap: anywhere; }
+.trainer .rank { font-size: 14px; font-weight: 600; color: #6a3c22; }
+.medal { position: absolute; right: 12px; bottom: 10px; width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff6c7, var(--gold) 45%, #a7751c); border: 2px solid #6d5000; display: grid; place-items: center; font-family: var(--f-pixel); font-size: 9px; color: #5a3d00; }
+.trainer.won .medal { animation: medal .7s cubic-bezier(.2,1.6,.4,1); }
+@keyframes medal { 0% { transform: scale(0) rotate(-200deg); } 100% { transform: scale(1) rotate(0); } }
+
+/* buscador + filtros */
+.finder { display: grid; gap: 10px; }
+.search { display: flex; gap: 8px; }
+.search label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.search input { flex: 1; min-width: 0; background: var(--lcd); color: var(--lcd-ink); border: 3px solid #4d4a48; border-radius: 4px; padding: 8px 10px; font-family: var(--f-lcd); font-size: 20px; }
+.search input::placeholder { color: #4c6347; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-family: var(--f-pixel); font-size: 8px; letter-spacing: .06em; text-transform: uppercase; padding: 6px 8px 5px; border-radius: 4px; border: 2px solid #5c0d14; background: var(--shell-dark); color: #ffd9da; }
+.chip[aria-pressed="true"] { background: var(--chip, #fff); color: #fff; border-color: #fff; text-shadow: 1px 1px 0 rgba(0,0,0,.45); }
+
+/* teclado azul = las entradas */
+.keys { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.key { background: var(--key); border: 2px solid #123e6e; border-radius: 4px; padding: 8px 2px 7px; font-family: var(--f-pixel); font-size: 9px; color: #fff; box-shadow: inset 0 -3px 0 rgba(0,0,0,.25); display: grid; gap: 4px; justify-items: center; }
+.key small { font-family: var(--f-body); font-size: 11px; font-weight: 600; opacity: .9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.key[aria-current="true"] { background: var(--gold); color: #2b1d00; border-color: #6d5000; }
+.key.dim { opacity: .35; }
+.key:disabled { background: var(--key-off); border-color: #3e353f; color: #c9bfc9; cursor: default; }
+.empty-note { margin: 0; font-family: var(--f-lcd); font-size: 19px; color: #ffd9da; }
+
+.foot { color: var(--muted); font-size: 13px; line-height: 1.5; max-width: 75ch; }
+
+@media (max-width: 780px) {
+  .dex { grid-template-columns: 1fr; }
+  .hinge { height: 22px; margin: 0 30px; border-block: none; border-inline: 3px solid #5c0d14; background: repeating-linear-gradient(90deg, var(--shell-dark) 0 22px, #5c0d14 22px 26px); }
+  .left, .right { border-radius: 16px; }
+}
+@media (max-width: 420px) {
+  .half { padding: 14px; }
+  .controls { grid-template-columns: 1fr auto; }
+  .controls .voice { grid-column: 1 / -1; order: 3; }
+  .stats { grid-template-columns: 1fr; }
+}
+/* ---------- Animación de apertura ----------
+   boot     → la mitad derecha está plegada sobre la bisagra (Pokédex cerrada)
+   dark     → pantalla LCD apagada y lente sin brillo
+   powering → los LEDs parpadean mientras "arranca"
+   Al quitar boot, la mitad derecha gira hasta abrirse; al quitar dark, la LCD se enciende. */
+.dex { perspective: 2200px; }
+.dex .right { transform-origin: left center; transition: transform .95s cubic-bezier(.2,.85,.25,1.12), opacity .25s ease-out; }
+.dex .hinge { transition: opacity .3s ease-out; }
+/* transition: none → se cierra al instante; al quitar .boot vuelve la transición y se anima al abrir */
+.dex.boot .right { transform: rotateY(-105deg); opacity: 0; transition: none; }
+.dex.boot .hinge { opacity: 0; transition: none; }
+.dex.dark .lcd { background: #34402f; }
+.dex.dark .lcd > * { opacity: 0; }
+.dex.dark .name-plate, .dex.dark .name-plate small { color: transparent; background: #34402f; }
+.dex.dark .lens { filter: brightness(.35) saturate(.3); }
+.dex.powering .led { animation: ledblink .16s steps(1) infinite; }
+.dex.powering .lens { animation: lenswake .5s ease-out .2s both; }
+@keyframes ledblink { 50% { opacity: .25; } }
+@keyframes lenswake { 0% { filter: brightness(.35) saturate(.3); } 60% { filter: brightness(1.8) saturate(1.4); } 100% { filter: brightness(1); } }
+.lcd.poweron { animation: crt .6s ease-out; }
+@keyframes crt {
+  0%   { transform: scaleY(.03); filter: brightness(3); }
+  35%  { transform: scaleY(1);   filter: brightness(1.8); }
+  50%  { filter: brightness(.6); }
+  65%  { filter: brightness(1.4); }
+  100% { filter: brightness(1); }
+}
+@media (max-width: 780px) {
+  .dex .right { transform-origin: center top; }
+  .dex.boot .right { transform: rotateX(-100deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+
+<div class="wrap">
+  <header class="brand">
+    <h1>Web<span>Dex</span></h1>
+    <p>Registro nacional de webs de juegos fan de Pokémon</p>
+  </header>
+
+  <main class="dex" aria-label="WebDex">
+    <!-- ===== Mitad izquierda: identidad de la web ===== -->
+    <section class="half left" aria-label="Entrada actual">
+      <div class="top">
+        <div class="lens" id="lens" aria-hidden="true"></div>
+        <div class="leds" aria-hidden="true"><span class="led r"></span><span class="led y"></span><span class="led g"></span></div>
+      </div>
+      <div class="bezel">
+        <div class="bezel-dots" aria-hidden="true"><i></i><i></i></div>
+        <div class="lcd" id="lcd">
+          <span class="num" id="num">Nº001</span>
+          <img id="logo" alt="">
+          <span class="flash"></span>
+        </div>
+        <div class="bezel-foot" aria-hidden="true"><span class="round-btn"></span><span class="speaker"><i></i><i></i><i></i></span></div>
+      </div>
+      <div class="name-plate" aria-live="polite">
+        <span id="name">PokeDoku</span>
+        <small id="species">La web rompecabezas</small>
+      </div>
+      <div class="controls">
+        <div class="dpad" aria-label="Cruceta">
+          <button class="u" id="up" aria-label="Entrada anterior">▲</button>
+          <button class="l" id="prev" aria-label="Entrada anterior">◀</button>
+          <span class="c"></span>
+          <button class="r" id="next" aria-label="Entrada siguiente">▶</button>
+          <button class="d" id="down" aria-label="Entrada siguiente">▼</button>
+        </div>
+        <span></span>
+        <div class="voice">
+          <button class="pill" id="speak">🔊 HABLAR</button>
+          <button class="pill" id="mute" aria-pressed="false">🔇 SILENCIO</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="hinge" aria-hidden="true"></div>
+
+    <!-- ===== Mitad derecha: datos de la entrada ===== -->
+    <section class="half right" aria-label="Datos">
+      <div class="screen">
+        <h2>TIPO · GÉNERO</h2>
+        <div class="types" id="types"></div>
+        <p class="desc" id="desc"></p>
+        <dl class="stats">
+          <div><dt>PLATAFORMA</dt><dd id="platform"></dd></div>
+          <div><dt>PARTIDA</dt><dd id="session"></dd></div>
+        </dl>
+        <button class="guide" id="guide" hidden></button>
+        <a class="visit" id="visit" href="#" target="_blank" rel="noopener">▶ VISITAR WEB</a>
+      </div>
+
+      <div class="trainer" id="trainer">
+        <canvas id="avatar" width="10" height="10" aria-hidden="true"></canvas>
+        <div class="info">
+          <span class="id" id="tid">ID Nº 00000</span>
+          <span class="who" id="creator"></span>
+          <span class="rank" id="rank"></span>
+        </div>
+        <span class="medal" aria-hidden="true">★</span>
+      </div>
+
+      <div class="finder">
+        <div class="search">
+          <label for="q">Buscar web</label>
+          <input id="q" type="search" placeholder="Buscar nombre o creador…" autocomplete="off">
+        </div>
+        <div class="chips" id="chips" aria-label="Filtrar por género"></div>
+        <div class="keys" id="keys"></div>
+        <p class="empty-note" id="empty" hidden>Ningún registro coincide. Prueba otro nombre o quita el filtro.</p>
+      </div>
+    </section>
+  </main>
+
+  <p class="foot">Proyecto fan sin ánimo de lucro. Cada web pertenece a su creador; Pokémon es marca de Nintendo, Creatures y GAME FREAK. Voces generadas con <a href="https://elevenlabs.io" target="_blank" rel="noopener">ElevenLabs</a> (o, si falta alguna, con la voz de tu navegador); no es la voz original de la serie. Navega con ◀ ▶ o con las flechas del teclado.</p>
+</div>
+
+<script>
+/* =====================================================================
+   WebDex: Pokédex de webs de juegos fan de Pokémon.
+   Para añadir una web nueva, añade un objeto al array WEBS.
+   ===================================================================== */
+
+// Colores de cada "tipo" (género), inspirados en los tipos Pokémon.
+const TYPES = {
+  "Puzle":      "#F95587", // psíquico
+  "Trivia":     "#E0B21B", // eléctrico
+  "Roguelike":  "#C22E28", // lucha
+  "Por turnos": "#6390F0", // agua
+  "Survivor":   "#735797", // fantasma
+  "Acción":     "#EE8130", // fuego
+  "3D":         "#8E8EA8", // acero
+  "Estrategia": "#6F35FC", // dragón
+  "Cartas":     "#C46A9A", // hada
+  "Guía":       "#3FA9A4", // hielo
+  "Mazmorras":  "#C99A3A", // tierra
+  "Cooperativo":"#5FA83A", // planta
+};
+
+// Registro de webs. logo = data URI incrustado al construir (ver build.sh).
+const WEBS = [
+  {
+    id: 1, slug: "pokedoku", nombre: "PokeDoku", url: "https://pokedoku.com",
+    logo: "{{LOGO_POKEDOKU}}", pixel: false,
+    especie: "La web rompecabezas",
+    tipos: ["Puzle", "Trivia"],
+    creador: "DokuGames", rango: "Líder de Gimnasio del Puzle Diario",
+    plataforma: "Navegador", partida: "Diaria · 3×3",
+    descripcion: "Aparece una vez al día como una rejilla de 3×3. Cada casilla esconde un Pokémon que debe cumplir la pista de su fila y de su columna. Los entrenadores la resuelven antes del desayuno para no romper su racha.",
+  },
+  {
+    id: 2, slug: "pokerogue", nombre: "PokeRogue", url: "https://pokerogue.net",
+    logo: "{{LOGO_POKEROGUE}}", pixel: true,
+    especie: "La web de las oleadas",
+    tipos: ["Roguelike", "Por turnos"],
+    creador: "Pagefault Games", rango: "Maestro de las Oleadas Infinitas",
+    plataforma: "Navegador", partida: "Por oleadas",
+    descripcion: "Un roguelike hecho solo de combates. Eliges tus iniciales y encadenas oleada tras oleada de batallas, capturando y mejorando al equipo por el camino. Si todo tu equipo cae, la partida vuelve a empezar desde la oleada 1.",
+  },
+  {
+    id: 3, slug: "pokesurvivor", nombre: "PokeSurvivor", url: "https://pokesurvivor.com",
+    logo: "{{LOGO_POKESURVIVOR}}", pixel: true,
+    especie: "La web superviviente",
+    tipos: ["Survivor", "Acción"],
+    creador: "Entrenador desconocido", rango: "Superviviente anónimo de las hordas",
+    plataforma: "Navegador · Móvil", partida: "Por hordas",
+    descripcion: "Al estilo de Survivor.io, tu Pokémon compañero resiste hordas cada vez más grandes en un mapa pixel art. Subes de nivel, eliges mejoras y aguantas hasta el final. Es un proyecto fan gratuito y sin ánimo de lucro.",
+  },
+  {
+    id: 4, slug: "pokebonk", nombre: "PokéBonk", url: "https://pokebonk.com",
+    logo: "{{LOGO_POKEBONK}}", pixel: true,
+    especie: "La web de las hordas en 3D",
+    tipos: ["Survivor", "3D"],
+    creador: "Entrenador desconocido", rango: "Campeón sin rostro de la Liga Kanto",
+    plataforma: "Navegador", partida: "Por hordas",
+    descripcion: "Un survivor en tres dimensiones con los 151 Pokémon de Kanto. Resiste hordas salvajes, evoluciona en plena partida, lanza tu ataque Ultimate y desbloquea la Liga. Se juega gratis en el navegador.",
+  },
+  {
+    id: 5, slug: "pokeclash", nombre: "PokeClash", url: "https://www.playpokeclash.com",
+    logo: "{{LOGO_POKECLASH}}", pixel: true,
+    especie: "La web de los duelos de cartas",
+    tipos: ["Estrategia", "Cartas"],
+    creador: "Entrenador desconocido", rango: "Estratega misterioso de la Arena",
+    plataforma: "Navegador · Móvil (vertical)", partida: "Duelo en tiempo real",
+    descripcion: "Un duelo de cartas y torres al estilo Clash Royale. Despliega a tus Pokémon en la arena en el momento justo para derribar las torres del rival antes de que él derribe las tuyas. Está pensada para jugar en vertical en el móvil.",
+  },
+  {
+    id: 6, slug: "survivortiers", nombre: "SurvivorTiers", url: "https://survivortiers.pages.dev",
+    logo: "{{LOGO_SURVIVORTIERS}}", pixel: true,
+    especie: "La web clasificadora",
+    tipos: ["Guía", "Survivor"],
+    guiaDe: "pokesurvivor", // enlaza con la ficha del juego al que sirve de guía
+    creador: "Felipe Basurto", rango: "Profesor investigador de las tiers",
+    plataforma: "Navegador", partida: "Consulta · Tier list",
+    descripcion: "No es un juego sino una guía. Ordena los 966 Pokémon de PokeSurvivor de la S a la D según miles de partidas simuladas, y permite filtrar y comparar estadísticas, ataques, objetos y naturalezas para elegir mejor a tu compañero.",
+  },
+  {
+    id: 7, slug: "pokeisaac", nombre: "PokéIsaac", url: "https://pokeisaac.com",
+    logo: "{{LOGO_POKEISAAC}}", pixel: true,
+    especie: "La web de las mazmorras",
+    tipos: ["Roguelike", "Mazmorras", "Cooperativo"],
+    creador: "Entrenador desconocido", rango: "Explorador oculto de las mazmorras",
+    plataforma: "Navegador", partida: "Solo o cooperativo online",
+    descripcion: "Un roguelike con Pokémon al estilo The Binding of Isaac. Explora mazmorras sala a sala, derrota a sus jefes, reúne objetos y completa la Pokédex. Puedes jugar en solitario o en cooperativo online con otro entrenador.",
+  },
+];
+
+// Voces generadas con ElevenLabs (voces.js). build.sh rellena { slug: "data:audio/mpeg;base64,…" }.
+// Las entradas sin MP3 usan la voz del navegador.
+const VOICE_MP3 = {/*{{VOICES}}*/};
+
+const SLOTS = 10;         // casillas del teclado azul (las vacías muestran "???")
+const $ = (id) => document.getElementById(id);
+const pad = (n) => String(n).padStart(3, "0");
+
+let current = 0;           // índice en WEBS
+let activeType = null;     // filtro de género activo
+let muted = false;
+let interacted = false;    // el audio solo puede sonar tras un gesto del usuario
+let typing = null;         // temporizador del texto "máquina de escribir"
+
+/* ---------- Avatar pixel del creador: identicon 5×5 simétrico a partir del nombre ---------- */
+function hash(str) {
+  let h = 2166136261;
+  for (const c of str) { h ^= c.codePointAt(0); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+function drawAvatar(name, color) {
+  const ctx = $("avatar").getContext("2d");
+  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, 10, 10);
+  let h = hash(name);
+  ctx.fillStyle = color;
+  for (let y = 0; y < 5; y++) for (let x = 0; x < 3; x++) {
+    if (h & 1) { ctx.fillRect(x * 2, y * 2, 2, 2); ctx.fillRect((4 - x) * 2, y * 2, 2, 2); }
+    h = (h >>> 1) || hash(name + y);
+  }
+}
+
+/* ---------- Respaldo si un logo no carga: iniciales en pixel art ---------- */
+function fallbackLogo(web) {
+  const c = document.createElement("canvas"); c.width = 64; c.height = 48;
+  const x = c.getContext("2d");
+  x.fillStyle = "#1d2a1c"; x.font = "20px 'Press Start 2P', monospace";
+  x.textAlign = "center"; x.textBaseline = "middle";
+  x.fillText(web.nombre.replace(/^Poke/i, "").slice(0, 2).toUpperCase(), 32, 26);
+  return c.toDataURL();
+}
+
+/* ---------- Sonido: pitido 8-bit con WebAudio ---------- */
+let audioCtx = null;
+function beep() {
+  if (muted || !interacted) return;
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    [880, 1320].forEach((f, i) => {
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = "square"; o.frequency.value = f;
+      const t = audioCtx.currentTime + i * 0.07;
+      g.gain.setValueAtTime(0.06, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+      o.connect(g).connect(audioCtx.destination); o.start(t); o.stop(t + 0.08);
+    });
+  } catch (e) { /* sin audio disponible: seguimos en silencio */ }
+}
+
+/* ---------- Voz de la Pokédex con speechSynthesis ----------
+   Voz femenina y natural que sigue el orden de la Pokédex del anime
+   (nombre → especie → tipo → creador → descripción) en frases fluidas. */
+const FEMALE = /helena|laura|sabina|dalia|elvira|paloma|monica|mónica|paulina|lucia|lucía|elena|ximena|abril|irene|google español/i;
+const MALE = /pablo|jorge|raul|raúl|alvaro|álvaro|diego|enrique|gonzalo|tomas|tomás|alonso|jorge/i;
+function pickVoice() {
+  const es = speechSynthesis.getVoices().filter(v => /^es/i.test(v.lang));
+  const natural = v => /natural|online|neural|google/i.test(v.name); // voces en la nube, mucho más humanas
+  return es.find(v => natural(v) && FEMALE.test(v.name))
+      || es.find(v => natural(v) && !MALE.test(v.name))
+      || es.find(v => FEMALE.test(v.name))
+      || es.find(v => !MALE.test(v.name))   // cualquier española que no sea claramente masculina
+      || es[0] || null;
+}
+let player = null; // <audio> de la voz de ElevenLabs que está sonando
+function stopVoice() {
+  if (player) { player.pause(); player = null; }
+  if ("speechSynthesis" in window) speechSynthesis.cancel();
+  $("lens").classList.remove("talking");
+}
+function speak(web) {
+  if (muted || !interacted) return;
+  stopVoice();
+  // 1) Si la entrada tiene MP3 de ElevenLabs, se reproduce ese audio.
+  if (VOICE_MP3[web.slug]) {
+    player = new Audio(VOICE_MP3[web.slug]);
+    player.onplay = () => $("lens").classList.add("talking");
+    player.onended = player.onerror = () => $("lens").classList.remove("talking");
+    player.play().catch(() => $("lens").classList.remove("talking"));
+    window.__voice = "ElevenLabs (" + web.slug + ".mp3)";
+    return;
+  }
+  // 2) Si no, voz del navegador.
+  if (!("speechSynthesis" in window)) return;
+  // Tres frases naturales en vez de bloques cortados.
+  const quien = /desconocido/i.test(web.creador) ? "y no se sabe quién la creó" : `y la creó ${web.creador}`;
+  const chunks = [
+    `${web.nombre}, ${web.especie.charAt(0).toLowerCase() + web.especie.slice(1)}.`,
+    `Es de tipo ${web.tipos.join(" y ")}, ${quien}.`,
+    web.descripcion,
+  ];
+  const v = pickVoice();
+  chunks.forEach((text, i) => {
+    const u = new SpeechSynthesisUtterance(text);
+    if (v) u.voice = v;
+    u.lang = v ? v.lang : "es-ES";
+    u.pitch = 1.03;   // tono natural, apenas un punto más vivo
+    u.rate = 0.98;    // ritmo de conversación
+    if (i === 0) u.onstart = () => $("lens").classList.add("talking");
+    if (i === chunks.length - 1) u.onend = () => $("lens").classList.remove("talking");
+    u.onerror = () => $("lens").classList.remove("talking");
+    speechSynthesis.speak(u);
+  });
+  window.__lastSpoken = chunks;             // para pruebas
+  window.__voice = v ? v.name : "(por defecto)";
+}
+if ("speechSynthesis" in window) speechSynthesis.onvoiceschanged = () => {};
+
+/* ---------- Filtro: qué webs coinciden con la búsqueda y el género ---------- */
+function matches(web) {
+  const q = $("q").value.trim().toLowerCase();
+  const textOk = !q || [web.nombre, web.creador, ...web.tipos].some(s => s.toLowerCase().includes(q));
+  const typeOk = !activeType || web.tipos.includes(activeType);
+  return textOk && typeOk;
+}
+function visibleIndexes() { return WEBS.map((w, i) => matches(w) ? i : -1).filter(i => i >= 0); }
+
+/* ---------- Pintar la entrada actual ---------- */
+function typeText(el, text) {
+  clearInterval(typing);
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce) { el.textContent = text; return; }
+  let i = 0; el.textContent = "";
+  const caret = document.createElement("span"); caret.className = "caret"; caret.innerHTML = "&nbsp;";
+  typing = setInterval(() => {
+    i += 2; el.textContent = text.slice(0, i); el.appendChild(caret);
+    if (i >= text.length) { clearInterval(typing); el.textContent = text; }
+  }, 16);
+}
+
+function render(announce = true) {
+  const web = WEBS[current];
+  const mainColor = TYPES[web.tipos[0]];
+
+  $("num").textContent = "Nº" + pad(web.id);
+  const img = $("logo");
+  img.onerror = () => { img.onerror = null; img.src = fallbackLogo(web); img.classList.add("pixel"); };
+  img.src = web.logo; img.alt = "Logo de " + web.nombre;
+  img.classList.toggle("pixel", web.pixel);
+  $("name").textContent = web.nombre;
+  $("species").textContent = web.especie;
+
+  // Si la web es guía de otra entrada, botón para saltar a esa ficha.
+  const target = WEBS.findIndex(w => w.slug === web.guiaDe);
+  $("guide").hidden = target < 0;
+  if (target >= 0) {
+    $("guide").textContent = `📘 Guía de: Nº${pad(WEBS[target].id)} ${WEBS[target].nombre}`;
+    $("guide").onclick = () => go(target);
+  }
+
+  $("types").innerHTML = web.tipos.map(t => `<span class="type" style="background:${TYPES[t]}">${t}</span>`).join("");
+  typeText($("desc"), web.descripcion);
+  $("platform").textContent = web.plataforma;
+  $("session").textContent = web.partida;
+  $("visit").href = web.url;
+
+  $("tid").textContent = "ID Nº " + String(hash(web.creador) % 100000).padStart(5, "0");
+  $("creator").textContent = web.creador;
+  $("rank").textContent = web.rango;
+  drawAvatar(web.creador, mainColor);
+
+  // reinicia animaciones (destello de pantalla y medalla)
+  const lcd = $("lcd"), tr = $("trainer");
+  lcd.classList.remove("swap"); tr.classList.remove("won");
+  void lcd.offsetWidth;
+  lcd.classList.add("swap"); tr.classList.add("won");
+
+  renderKeys();
+  try { history.replaceState(null, "", "#" + web.slug); } catch (e) {}
+  if (announce) { beep(); speak(web); }
+}
+
+/* ---------- Teclado azul de entradas ---------- */
+function renderKeys() {
+  const keys = $("keys"); keys.innerHTML = "";
+  for (let s = 0; s < SLOTS; s++) {
+    const web = WEBS[s];
+    const b = document.createElement("button"); b.className = "key";
+    if (!web) {
+      b.disabled = true; b.innerHTML = `${pad(s + 1)}<small>???</small>`;
+      b.setAttribute("aria-label", `Entrada ${pad(s + 1)} sin descubrir`);
+    } else {
+      b.innerHTML = `${pad(web.id)}<small>${web.nombre}</small>`;
+      b.setAttribute("aria-label", `${pad(web.id)} ${web.nombre}`);
+      if (s === current) b.setAttribute("aria-current", "true");
+      if (!matches(web)) b.classList.add("dim");
+      b.onclick = () => go(s);
+    }
+    keys.appendChild(b);
+  }
+  $("empty").hidden = visibleIndexes().length > 0;
+}
+
+function renderChips() {
+  const all = [...new Set(WEBS.flatMap(w => w.tipos))];
+  $("chips").innerHTML = "";
+  all.forEach(t => {
+    const c = document.createElement("button"); c.className = "chip"; c.textContent = t;
+    c.style.setProperty("--chip", TYPES[t]);
+    c.setAttribute("aria-pressed", String(activeType === t));
+    c.onclick = () => { activeType = activeType === t ? null : t; renderChips(); applyFilter(); };
+    $("chips").appendChild(c);
+  });
+}
+
+// Si el filtro esconde la entrada actual, salta a la primera que coincida.
+function applyFilter() {
+  const vis = visibleIndexes();
+  if (vis.length && !vis.includes(current)) { current = vis[0]; render(false); }
+  else renderKeys();
+}
+
+/* ---------- Navegación ---------- */
+function go(i) { interacted = true; current = i; render(true); }
+function step(dir) {
+  const vis = visibleIndexes(); if (!vis.length) return;
+  const pos = vis.indexOf(current);
+  const next = pos < 0 ? vis[0] : vis[(pos + dir + vis.length) % vis.length];
+  go(next);
+}
+$("prev").onclick = $("up").onclick = () => step(-1);
+$("next").onclick = $("down").onclick = () => step(1);
+$("speak").onclick = () => { interacted = true; if (muted) { muted = false; $("mute").setAttribute("aria-pressed", "false"); } speak(WEBS[current]); };
+$("mute").onclick = () => {
+  muted = !muted; $("mute").setAttribute("aria-pressed", String(muted));
+  if (muted) stopVoice();
+};
+$("q").addEventListener("input", applyFilter);
+document.addEventListener("keydown", (e) => {
+  if (e.target === $("q")) return;
+  if (e.key === "ArrowRight" || e.key === "ArrowDown") { e.preventDefault(); step(1); }
+  if (e.key === "ArrowLeft" || e.key === "ArrowUp") { e.preventDefault(); step(-1); }
+});
+
+/* ---------- Arranque: abre la web del #ancla si existe (p. ej. #pokerogue) ---------- */
+const fromHash = WEBS.findIndex(w => "#" + w.slug === location.hash);
+if (fromHash >= 0) current = fromHash;
+renderChips();
+render(false);
+boot();
+
+/* ---------- Animación de apertura: la Pokédex se enciende y se despliega ----------
+   Se salta con un clic o una tecla, y no se reproduce con "reducir movimiento". */
+function boot() {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const dex = document.querySelector(".dex");
+  const timers = [];
+  const at = (ms, fn) => timers.push(setTimeout(fn, ms));
+  const powerOnLcd = () => {
+    dex.classList.remove("dark");
+    const lcd = $("lcd"); lcd.classList.remove("poweron"); void lcd.offsetWidth; lcd.classList.add("poweron");
+    typeText($("desc"), WEBS[current].descripcion);
+  };
+  const finish = () => {
+    timers.forEach(clearTimeout);
+    dex.classList.remove("boot", "powering");
+    if (dex.classList.contains("dark")) powerOnLcd();
+    removeEventListener("pointerdown", finish); removeEventListener("keydown", finish);
+  };
+  dex.classList.add("boot", "dark");
+  at(200, () => dex.classList.add("powering"));    // LEDs y lente arrancan
+  at(850, () => dex.classList.remove("boot"));     // la tapa derecha gira y se abre
+  at(1250, () => dex.classList.remove("powering"));
+  at(1750, powerOnLcd);                            // la pantalla se enciende
+  at(2400, finish);
+  addEventListener("pointerdown", finish); addEventListener("keydown", finish);
+}
+
+// Si cambia el #ancla con la página abierta, salta a esa entrada.
+addEventListener("hashchange", () => {
+  const i = WEBS.findIndex(w => "#" + w.slug === location.hash);
+  if (i >= 0 && i !== current) { current = i; render(false); }
+});
+</script>

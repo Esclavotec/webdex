@@ -167,6 +167,52 @@ button { font: inherit; color: inherit; cursor: pointer; }
   .controls .voice { grid-column: 1 / -1; order: 3; }
   .stats { grid-template-columns: 1fr; }
 }
+
+/* ---------- Tablón "Centro Pokémon" ----------
+   Botón flotante abajo a la derecha + panel con estilo de cuadro de diálogo de los juegos
+   (fondo blanco, borde doble y cursor ▼). En móvil el panel ocupa todo el ancho. */
+.board-btn { position: fixed; z-index: 30; right: calc(16px + env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); display: inline-flex; align-items: center; gap: 8px; background: var(--shell); color: #fff; border: 3px solid #5c0d14; border-radius: 999px; padding: 10px 16px 10px 10px; font-family: var(--f-pixel); font-size: 10px; letter-spacing: .04em; box-shadow: 0 4px 0 #5c0d14, 0 10px 24px rgba(0,0,0,.45); }
+.board-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #5c0d14; }
+.board-btn .ball { width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(#fff 0 44%, #222 44% 56%, #fff 56%); border: 2px solid #222; position: relative; }
+.board-btn .ball::after { content: ""; position: absolute; inset: 6px; border-radius: 50%; background: #fff; border: 2px solid #222; }
+.board-btn .count { background: var(--gold); color: #2b1d00; border-radius: 999px; padding: 3px 6px 2px; font-size: 8px; }
+.board { position: fixed; z-index: 40; right: calc(16px + env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); width: min(440px, calc(100vw - 32px)); max-height: min(78vh, 720px); display: grid; grid-template-rows: auto auto 1fr; background: #f8f8f0; color: #282828; border: 4px solid #282828; border-radius: 10px; box-shadow: inset 0 0 0 3px #f8f8f0, inset 0 0 0 6px #6890b8, 0 18px 48px rgba(0,0,0,.6); overflow: hidden; }
+.board-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px 10px; border-bottom: 3px solid #282828; background: linear-gradient(180deg, #fff, #ecece0); }
+.board-head h2 { margin: 0; font-family: var(--f-pixel); font-size: 12px; line-height: 1.4; color: #282828; }
+.board-head h2 small { display: block; font-family: var(--f-lcd); font-size: 18px; color: #6a6a5a; letter-spacing: 0; }
+.board-close { background: none; border: 2px solid #282828; border-radius: 4px; width: 32px; height: 32px; font-family: var(--f-pixel); font-size: 12px; color: #282828; flex: none; }
+.board-form { display: grid; gap: 8px; padding: 12px 16px; border-bottom: 3px dashed #c8c8b8; }
+.board-form label { font-family: var(--f-pixel); font-size: 8px; letter-spacing: .08em; color: #585848; }
+.board-form input, .board-form textarea { width: 100%; background: #fff; color: #282828; border: 2px solid #282828; border-radius: 4px; padding: 7px 9px; font-family: var(--f-lcd); font-size: 20px; line-height: 1.1; }
+.board-form textarea { resize: vertical; min-height: 64px; }
+.kinds { display: flex; flex-wrap: wrap; gap: 6px; border: none; margin: 0; padding: 0; }
+.kinds legend { font-family: var(--f-pixel); font-size: 8px; letter-spacing: .08em; color: #585848; padding: 0; margin-bottom: 4px; }
+.kind { position: relative; }
+.kind input { position: absolute; opacity: 0; inset: 0; }
+.kind span { display: inline-block; font-family: var(--f-pixel); font-size: 8px; text-transform: uppercase; padding: 6px 8px 5px; border-radius: 4px; border: 2px solid #282828; background: #fff; color: #282828; cursor: pointer; }
+.kind input:checked + span { background: var(--k); color: #fff; text-shadow: 1px 1px 0 rgba(0,0,0,.4); }
+.kind input:focus-visible + span { outline: 3px solid var(--gold); outline-offset: 2px; }
+.board-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.board-status { margin: 0; font-family: var(--f-lcd); font-size: 18px; color: #585848; min-height: 1em; flex: 1; min-width: 0; }
+.board-status.err { color: #b02020; }
+.board-status.ok { color: #2f7a2f; }
+.board-send { background: var(--shell); color: #fff; border: 2px solid #5c0d14; border-radius: 4px; padding: 9px 14px; font-family: var(--f-pixel); font-size: 9px; box-shadow: 0 3px 0 #5c0d14; }
+.board-send:disabled { opacity: .5; cursor: default; }
+.board-list { list-style: none; margin: 0; padding: 10px 16px 16px; overflow-y: auto; display: grid; gap: 10px; align-content: start; min-height: 120px; }
+.msg { display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: start; }
+.msg canvas { width: 34px; height: 34px; image-rendering: pixelated; border: 2px solid #282828; border-radius: 4px; background: #fff; }
+.msg-body { min-width: 0; display: grid; gap: 4px; background: #fff; border: 2px solid #282828; border-radius: 6px; padding: 7px 10px 8px; position: relative; }
+.msg-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12px; color: #6a6a5a; }
+.msg-meta b { font-family: var(--f-pixel); font-size: 9px; color: #282828; overflow-wrap: anywhere; }
+.msg-meta .type { font-size: 7px; padding: 4px 6px 3px; }
+.msg-text { margin: 0; font-family: var(--f-lcd); font-size: 19px; line-height: 1.15; white-space: pre-wrap; overflow-wrap: anywhere; }
+.msg-url { font-family: var(--f-lcd); font-size: 18px; color: #2f6fb8; overflow-wrap: anywhere; }
+.board-empty { font-family: var(--f-lcd); font-size: 19px; color: #6a6a5a; text-align: center; padding: 18px 0; }
+.board-empty .cursor { display: inline-block; animation: caret 1s steps(1) infinite; }
+@media (max-width: 520px) {
+  .board { right: 0; left: 0; bottom: 0; width: 100%; max-height: 88vh; border-radius: 12px 12px 0 0; padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
+}
+
 /* ---------- Animación de apertura ----------
    boot     → la mitad derecha está plegada sobre la bisagra (Pokédex cerrada)
    dark     → pantalla LCD apagada y lente sin brillo
@@ -283,6 +329,38 @@ button { font: inherit; color: inherit; cursor: pointer; }
       </div>
     </section>
   </main>
+
+  <!-- ===== Tablón "Centro Pokémon": comentarios, sugerencias y avisos ===== -->
+  <button class="board-btn" id="boardBtn" aria-expanded="false" aria-controls="board">
+    <span class="ball" aria-hidden="true"></span> CENTRO POKÉMON <span class="count" id="boardCount" hidden>0</span>
+  </button>
+  <aside class="board" id="board" role="dialog" aria-modal="false" aria-labelledby="boardTitle" hidden>
+    <div class="board-head">
+      <h2 id="boardTitle">CENTRO POKÉMON<small>Deja un comentario, sugiere una web o avisa de algo</small></h2>
+      <button class="board-close" id="boardClose" aria-label="Cerrar el Centro Pokémon">✕</button>
+    </div>
+    <form class="board-form" id="boardForm" novalidate>
+      <label for="bName">NOMBRE DE ENTRENADOR</label>
+      <input id="bName" maxlength="40" autocomplete="nickname" placeholder="Ash, Misty, Brock…" required>
+      <fieldset class="kinds">
+        <legend>TIPO DE MENSAJE</legend>
+        <label class="kind" style="--k:#A8A77A"><input type="radio" name="bKind" value="comentario" checked><span>💬 Comentario</span></label>
+        <label class="kind" style="--k:#5FA83A"><input type="radio" name="bKind" value="sugerencia"><span>🔍 Sugerir web</span></label>
+        <label class="kind" style="--k:#E0B21B"><input type="radio" name="bKind" value="aviso"><span>⚠️ Aviso</span></label>
+      </fieldset>
+      <div id="bUrlRow" hidden>
+        <label for="bUrl">URL DE LA WEB QUE SUGIERES</label>
+        <input id="bUrl" type="url" maxlength="200" placeholder="https://…" inputmode="url">
+      </div>
+      <label for="bText">MENSAJE</label>
+      <textarea id="bText" maxlength="500" rows="3" placeholder="¿Qué quieres contarle al Profesor?" required></textarea>
+      <div class="board-row">
+        <p class="board-status" id="bStatus" aria-live="polite"></p>
+        <button class="board-send" id="bSend" type="submit">▶ ENVIAR</button>
+      </div>
+    </form>
+    <ul class="board-list" id="bList" aria-label="Mensajes del Centro Pokémon"></ul>
+  </aside>
 
   <footer class="foot">
     <!-- Misión del proyecto -->
@@ -401,8 +479,8 @@ function hash(str) {
   for (const c of str) { h ^= c.codePointAt(0); h = Math.imul(h, 16777619); }
   return h >>> 0;
 }
-function drawAvatar(name, color) {
-  const ctx = $("avatar").getContext("2d");
+function drawAvatar(name, color, canvas = $("avatar")) { // canvas de 10×10 (ficha o mensaje del tablón)
+  const ctx = canvas.getContext("2d");
   ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, 10, 10);
   let h = hash(name);
   ctx.fillStyle = color;
@@ -617,10 +695,178 @@ $("mute").onclick = () => {
 };
 $("q").addEventListener("input", applyFilter);
 document.addEventListener("keydown", (e) => {
-  if (e.target === $("q")) return;
+  if (e.target.closest && e.target.closest("input, textarea, select, .board")) return; // escribiendo: las flechas no cambian de ficha
   if (e.key === "ArrowRight" || e.key === "ArrowDown") { e.preventDefault(); step(1); }
   if (e.key === "ArrowLeft" || e.key === "ArrowUp") { e.preventDefault(); step(-1); }
 });
+
+/* =====================================================================
+   Tablón "Centro Pokémon": cualquiera puede leer y dejar mensajes.
+   Los mensajes se guardan en Firebase Firestore (colección "mensajes") usando su API REST,
+   sin librerías. Las reglas de firestore.rules validan cada mensaje en el servidor.
+   Mientras FIREBASE.projectId esté vacío, el tablón muestra que aún no está conectado.
+   ===================================================================== */
+const FIREBASE = {
+  apiKey: "AIzaSyAJC_msxMLY0rmnXuWeFn6X3f7jpnpd4WM", // clave web pública de Firebase (no es secreta; protegen las reglas)
+  projectId: "pokedex-f19cf",
+  base: "https://firestore.googleapis.com/v1", // solo se cambia para pruebas
+};
+const KINDS = {
+  comentario: { label: "Comentario", color: "#A8A77A" },
+  sugerencia: { label: "Sugerir web", color: "#5FA83A" },
+  aviso:      { label: "Aviso",       color: "#E0B21B" },
+};
+const LIMITS = { nombre: 40, texto: 500, url: 200, esperaMs: 30000 };
+// Filtro sencillo de palabras malsonantes (se comparan sin tildes y en minúsculas).
+const BAD_WORDS = ["puta", "puto", "mierda", "pendejo", "cabron", "gilipollas", "imbecil", "idiota", "estupido", "marica", "verga", "coño", "concha", "fuck", "shit"];
+
+const board = {
+  open: false,
+  loaded: false,
+  get configured() { return !!(FIREBASE.projectId && !FIREBASE.projectId.startsWith("{{") && FIREBASE.apiKey && !FIREBASE.apiKey.startsWith("{{")); },
+  docs() { return `${FIREBASE.base}/projects/${FIREBASE.projectId}/databases/(default)/documents`; },
+};
+
+const fold = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+function hasBadWords(text) {
+  const words = fold(text).split(/[^a-zñ0-9]+/);
+  return BAD_WORDS.some(b => words.includes(fold(b)));
+}
+function setStatus(text, kind = "") {
+  const el = $("bStatus"); el.textContent = text; el.className = "board-status" + (kind ? " " + kind : "");
+}
+
+// Convierte un documento de Firestore REST ({ fields: { x: { stringValue } } }) en un objeto simple.
+function fromFirestore(doc) {
+  const f = doc.fields || {};
+  const s = (k) => (f[k] && f[k].stringValue) || "";
+  return { id: doc.name.split("/").pop(), nombre: s("nombre"), tipo: s("tipo"), texto: s("texto"), url: s("url"),
+           fecha: f.fecha && f.fecha.timestampValue ? new Date(f.fecha.timestampValue) : null };
+}
+
+async function loadMessages() {
+  if (!board.configured) {
+    renderMessages(null, "El Centro Pokémon todavía no está conectado. ¡Vuelve pronto!");
+    return;
+  }
+  try {
+    const res = await fetch(`${board.docs()}:runQuery?key=${encodeURIComponent(FIREBASE.apiKey)}`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ structuredQuery: {
+        from: [{ collectionId: "mensajes" }],
+        orderBy: [{ field: { fieldPath: "fecha" }, direction: "DESCENDING" }],
+        limit: 50,
+      } }),
+    });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const rows = await res.json();
+    renderMessages(rows.filter(r => r.document).map(r => fromFirestore(r.document)));
+    board.loaded = true;
+  } catch (e) {
+    renderMessages(null, "No se pudo conectar con el Centro Pokémon. Si estás en una vista previa, abre la web pública: webdex.onrender.com");
+  }
+}
+
+function renderMessages(list, emptyText) {
+  const ul = $("bList"); ul.innerHTML = "";
+  const count = $("boardCount");
+  count.hidden = !list || !list.length; if (list) count.textContent = list.length >= 50 ? "50+" : list.length;
+  if (!list || !list.length) {
+    const li = document.createElement("li"); li.className = "board-empty";
+    li.textContent = emptyText || "Aún no hay mensajes. ¡Sé el primer entrenador en escribir! ";
+    const c = document.createElement("span"); c.className = "cursor"; c.textContent = "▼"; li.appendChild(c);
+    ul.appendChild(li); return;
+  }
+  for (const m of list) {
+    const kind = KINDS[m.tipo] || KINDS.comentario;
+    const li = document.createElement("li"); li.className = "msg";
+    const cv = document.createElement("canvas"); cv.width = 10; cv.height = 10; cv.setAttribute("aria-hidden", "true");
+    drawAvatar(m.nombre || "?", kind.color, cv);
+    const body = document.createElement("div"); body.className = "msg-body";
+    const meta = document.createElement("div"); meta.className = "msg-meta";
+    const name = document.createElement("b"); name.textContent = m.nombre;          // textContent: nunca HTML
+    const badge = document.createElement("span"); badge.className = "type"; badge.style.background = kind.color; badge.textContent = kind.label;
+    const when = document.createElement("time");
+    if (m.fecha) { when.dateTime = m.fecha.toISOString(); when.textContent = m.fecha.toLocaleString("es", { dateStyle: "medium", timeStyle: "short" }); }
+    meta.append(name, badge, when);
+    const text = document.createElement("p"); text.className = "msg-text"; text.textContent = m.texto;
+    body.append(meta, text);
+    if (m.url && /^https?:\/\//i.test(m.url)) {
+      const a = document.createElement("a"); a.className = "msg-url"; a.href = m.url; a.target = "_blank"; a.rel = "noopener nofollow ugc"; a.textContent = m.url;
+      body.appendChild(a);
+    }
+    li.append(cv, body); ul.appendChild(li);
+  }
+}
+
+// Valida el formulario en el navegador (el servidor vuelve a validar con firestore.rules).
+function readForm() {
+  const nombre = $("bName").value.trim();
+  const tipo = (document.querySelector('input[name="bKind"]:checked') || {}).value || "comentario";
+  const texto = $("bText").value.trim();
+  const url = tipo === "sugerencia" ? $("bUrl").value.trim() : "";
+  if (!nombre) return { error: "Escribe tu nombre de entrenador." };
+  if (!texto) return { error: "El mensaje está vacío." };
+  if (nombre.length > LIMITS.nombre || texto.length > LIMITS.texto || url.length > LIMITS.url) return { error: "El mensaje es demasiado largo." };
+  if (tipo === "sugerencia" && !/^https?:\/\/[^\s.]+\.[^\s]+$/i.test(url)) return { error: "Pon la URL completa de la web, empezando por https://" };
+  if (hasBadWords(nombre + " " + texto)) return { error: "¡El Profesor Oak no permite ese lenguaje! Revisa tu mensaje." };
+  return { nombre, tipo, texto, url };
+}
+
+function lastPost() { try { return +localStorage.getItem("webdex-ultimo-mensaje") || 0; } catch (e) { return board.last || 0; } }
+function markPost() { board.last = Date.now(); try { localStorage.setItem("webdex-ultimo-mensaje", String(board.last)); } catch (e) {} }
+
+async function sendMessage(e) {
+  e.preventDefault();
+  if (!board.configured) { setStatus("El Centro Pokémon todavía no está conectado.", "err"); return; }
+  const wait = LIMITS.esperaMs - (Date.now() - lastPost());
+  if (wait > 0) { setStatus(`Tu Pokémon está descansando. Espera ${Math.ceil(wait / 1000)} s.`, "err"); return; }
+  const m = readForm();
+  if (m.error) { setStatus(m.error, "err"); return; }
+  $("bSend").disabled = true; setStatus("Enviando…");
+  const id = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(36).slice(2)).replace(/-/g, "");
+  try {
+    // commit + REQUEST_TIME: la fecha la pone el servidor de Firebase, no el navegador.
+    const res = await fetch(`${board.docs()}:commit?key=${encodeURIComponent(FIREBASE.apiKey)}`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ writes: [{
+        update: { name: `projects/${FIREBASE.projectId}/databases/(default)/documents/mensajes/${id}`,
+                  fields: { nombre: { stringValue: m.nombre }, tipo: { stringValue: m.tipo }, texto: { stringValue: m.texto }, url: { stringValue: m.url } } },
+        currentDocument: { exists: false },
+        updateTransforms: [{ fieldPath: "fecha", setToServerValue: "REQUEST_TIME" }],
+      }] }),
+    });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    markPost();
+    $("bText").value = ""; $("bUrl").value = "";
+    setStatus("¡Mensaje enviado! Gracias, entrenador.", "ok");
+    await loadMessages();
+  } catch (err) {
+    setStatus("No se pudo enviar. Inténtalo de nuevo en un momento.", "err");
+  } finally {
+    $("bSend").disabled = false;
+  }
+}
+
+function toggleBoard(show = !board.open) {
+  board.open = show;
+  $("board").hidden = !show; $("boardBtn").hidden = show;
+  $("boardBtn").setAttribute("aria-expanded", String(show));
+  if (show) { loadMessages(); $("bName").focus(); } else { $("boardBtn").focus(); }
+}
+$("boardBtn").onclick = () => toggleBoard(true);
+$("boardClose").onclick = () => toggleBoard(false);
+$("board").addEventListener("keydown", (e) => { if (e.key === "Escape") toggleBoard(false); });
+$("boardForm").addEventListener("submit", sendMessage);
+// El campo de URL solo aparece al elegir "Sugerir web".
+document.querySelectorAll('input[name="bKind"]').forEach(r => r.addEventListener("change", () => {
+  $("bUrlRow").hidden = document.querySelector('input[name="bKind"]:checked').value !== "sugerencia";
+}));
+// Recuerda el nombre de entrenador en este navegador.
+try { $("bName").value = localStorage.getItem("webdex-entrenador") || ""; } catch (e) {}
+$("bName").addEventListener("change", () => { try { localStorage.setItem("webdex-entrenador", $("bName").value.trim()); } catch (e) {} });
+if (location.hash === "#centro") toggleBoard(true);
+else if (board.configured) loadMessages(); // para mostrar el número de mensajes en el botón
 
 /* ---------- Arranque: abre la web del #ancla si existe (p. ej. #pokerogue) ---------- */
 const fromHash = WEBS.findIndex(w => "#" + w.slug === location.hash);

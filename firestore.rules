@@ -1,0 +1,32 @@
+// Reglas de seguridad de Firestore para el tablón "Centro Pokémon" de WebDex.
+// Pégalas en Firebase → Firestore Database → Reglas → Publicar.
+//
+// - Cualquiera puede LEER los mensajes.
+// - Cualquiera puede CREAR un mensaje, pero solo con estos campos y tamaños,
+//   y con la fecha puesta por el servidor (no se puede falsear).
+// - Nadie puede EDITAR ni BORRAR desde la web: solo tú, desde la consola de Firebase.
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /mensajes/{id} {
+      allow read: if true;
+
+      allow create: if
+        request.resource.data.keys().hasOnly(['nombre', 'tipo', 'texto', 'url', 'fecha']) &&
+        request.resource.data.keys().hasAll(['nombre', 'tipo', 'texto', 'url', 'fecha']) &&
+        request.resource.data.nombre is string &&
+        request.resource.data.nombre.size() > 0 && request.resource.data.nombre.size() <= 40 &&
+        request.resource.data.tipo in ['comentario', 'sugerencia', 'aviso'] &&
+        request.resource.data.texto is string &&
+        request.resource.data.texto.size() > 0 && request.resource.data.texto.size() <= 500 &&
+        request.resource.data.url is string && request.resource.data.url.size() <= 200 &&
+        request.resource.data.fecha == request.time;
+
+      allow update, delete: if false;
+    }
+    // Todo lo demás, cerrado.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

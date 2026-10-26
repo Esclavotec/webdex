@@ -159,6 +159,31 @@ Al cargar, la Pokédex aparece **cerrada**: la lente está apagada y la pantalla
 
 Todo dura unos 2,4 segundos y está en la función `boot()`, con las clases CSS `boot`, `dark` y `powering`. Se salta con un clic o una tecla, y no se reproduce si el sistema tiene activado "reducir movimiento".
 
+## Tablón "Centro Pokémon"
+
+Botón flotante **CENTRO POKÉMON**, abajo a la derecha. Abre un panel con estilo de cuadro de diálogo de los juegos, donde **cualquiera, sin registrarse**, puede:
+
+- Leer los últimos 50 mensajes (los más recientes primero), con avatar pixelado, tipo y fecha.
+- Escribir con su **nombre de entrenador** y un tipo de mensaje: 💬 **Comentario**, 🔍 **Sugerir web** (pide la URL) o ⚠️ **Aviso**.
+
+Enlace directo al tablón abierto: `https://webdex.onrender.com/#centro`.
+
+**Dónde se guardan:** en Firebase Firestore (proyecto `pokedex-f19cf`, colección `mensajes`), mediante su API REST y sin librerías. La clave web de Firebase que aparece en el código es pública por diseño: lo que protege los datos son las reglas de seguridad.
+
+**Protecciones:**
+
+| Dónde | Qué |
+|---|---|
+| Navegador | Nombre y mensaje obligatorios, URL válida en sugerencias, filtro de palabrotas, un mensaje cada 30 s |
+| Servidor (`firestore.rules`) | Solo los campos `nombre` (≤ 40), `tipo` (comentario, sugerencia o aviso), `texto` (≤ 500), `url` (≤ 200) y `fecha` puesta por el servidor. Nadie puede editar ni borrar desde la web |
+| Al mostrar | Todo se pinta como texto plano (`textContent`), así que no se puede inyectar HTML ni scripts; los enlaces llevan `rel="nofollow ugc"` |
+
+**Moderar:** Firebase → Firestore Database → Datos → `mensajes` → elige el documento → *Eliminar documento*.
+
+**Activar las reglas** (una sola vez): Firebase → Firestore Database → **Reglas** → pega el contenido de `firestore.rules` → **Publicar**.
+
+En el artefacto de Claude el tablón no puede conectarse, porque bloquea las conexiones externas; muestra un aviso con el enlace a la web pública.
+
 ## Publicación
 
 - **Artefacto de Claude**: `index.html`.
@@ -192,8 +217,12 @@ Todo dura unos 2,4 segundos y está en la función `boot()`, con las clases CSS 
 | **v3.2**: las 7 fichas reproducen su MP3 de Luisa (20–24 s cada uno); 🔇 lo corta; consola sin errores | ✅ |
 | **v3.2**: el pie muestra la misión del proyecto | ✅ |
 
+| **v4**: tablón contra un Firestore simulado: sin conexión avisa; validaciones (nombre, palabrotas, URL); envío y lista ordenada; espera de 30 s; HTML inyectado se ve como texto; Escape cierra | ✅ |
+| **v4**: tablón en móvil a todo el ancho, sin scroll lateral | ✅ |
+
 ## Cambios
 
+- **v4**: tablón "Centro Pokémon" con comentarios, sugerencias y avisos públicos (Firebase Firestore + `firestore.rules`).
 - **v3.2**
   - Voces reales de Luisa (ElevenLabs) en las 7 entradas, incrustadas en la página (unos 3,5 MB en total).
   - Pie de página con la misión: *"WebDex es un proyecto sin ánimo de lucro cuyo único objetivo es recopilar todos y cada uno de los juegos inspirados en Pokémon publicados en la web."*

@@ -25,6 +25,7 @@ Una Pokédex que, en vez de Pokémon, cataloga **webs de juegos fan de Pokémon*
 | 005 | [PokeClash](https://www.playpokeclash.com) | La web de los duelos de cartas | Estrategia · Cartas (como Clash Royale) | Entrenador desconocido |
 | 006 | [SurvivorTiers](https://survivortiers.pages.dev) | La web clasificadora | Guía · Survivor | Felipe Basurto |
 | 007 | [PokéIsaac](https://pokeisaac.com) | La web de las mazmorras | Roguelike · Mazmorras · Cooperativo | Entrenador desconocido |
+| 008 | [Pokémon Roulette](https://pokemon-roulette.zeroxm.com.br) | La web de la suerte | Azar · Aventura | André Xavier Martinez ([zeroxm](https://github.com/zeroxm/pokemon-roulette)) |
 
 "Entrenador desconocido" significa que la web no indica quién la creó. SurvivorTiers es una guía, no un juego: su ficha tiene un botón **📘 Guía de: Nº003 PokeSurvivor** que salta a esa entrada.
 
@@ -44,6 +45,8 @@ Una Pokédex que, en vez de Pokémon, cataloga **webs de juegos fan de Pokémon*
 | Guía | Turquesa (Hielo) |
 | Mazmorras | Ocre (Tierra) |
 | Cooperativo | Verde (Planta) |
+| Azar | Beige (Normal) |
+| Aventura | Lavanda (Volador) |
 
 ## Cómo se usa
 
@@ -225,8 +228,14 @@ En el artefacto de Claude el tablón no puede conectarse, porque bloquea las con
 | **v4.1**: sin la regla `hidden` del artefacto (como en Render), el panel empieza cerrado y se cierra con ✕ y con Escape | ✅ |
 | **v4.1**: tras enviar, el botón cuenta de 10 a 0 y se reactiva; se mantienen nombre y tipo; un segundo envío de otro tipo funciona | ✅ |
 | **v4.2**: el icono SVG, el PNG de 32 px y el apple-touch-icon de 180 px están en `<head>` y cargan; `theme-color` rojo; consola sin errores | ✅ |
+| **v4.3**: la ficha 008 carga con logo, especie, tipos y creador; ▶ va de 007 a 008 y vuelve a 001; los filtros Azar y Aventura muestran solo Pokémon Roulette; la tecla 008 está activa; suena su MP3 de Luisa (23 s); móvil sin scroll lateral | ✅ |
 
 ## Cambios
+
+- **v4.3**
+  - Nueva entrada **Nº008 Pokémon Roulette** (André Xavier Martinez), con su voz de Luisa.
+  - Nuevos géneros: **Azar** y **Aventura**.
+  - Nota: el logo es el icono que usa la propia web, que es el logo por defecto de Angular (el framework con el que está hecha).
 
 - **v4.2**
   - Icono de Pokédex en pixel art en la pestaña del navegador, en Safari y en la pantalla de inicio del móvil; barra del navegador móvil en rojo.

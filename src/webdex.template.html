@@ -397,6 +397,8 @@ const TYPES = {
   "Guía":       "#3FA9A4", // hielo
   "Mazmorras":  "#C99A3A", // tierra
   "Cooperativo":"#5FA83A", // planta
+  "Azar":       "#9A9970", // normal
+  "Aventura":   "#8E74E0", // volador
 };
 
 // Registro de webs. logo = data URI incrustado al construir (ver build.sh).
@@ -464,6 +466,15 @@ const WEBS = [
     creador: "Entrenador desconocido", rango: "Explorador oculto de las mazmorras",
     plataforma: "Navegador", partida: "Solo o cooperativo online",
     descripcion: "Un roguelike con Pokémon al estilo The Binding of Isaac. Explora mazmorras sala a sala, derrota a sus jefes, reúne objetos y completa la Pokédex. Puedes jugar en solitario o en cooperativo online con otro entrenador.",
+  },
+  {
+    id: 8, slug: "pokemonroulette", nombre: "Pokémon Roulette", url: "https://pokemon-roulette.zeroxm.com.br",
+    logo: "{{LOGO_POKEMONROULETTE}}", pixel: true,
+    especie: "La web de la suerte",
+    tipos: ["Azar", "Aventura"],
+    creador: "André Xavier Martinez", rango: "Crupier de las ruletas, de Kanto a Paldea",
+    plataforma: "Navegador", partida: "Por giros de ruleta",
+    descripcion: "Una partida aleatoria guiada por ruletas. Eliges una región entre las nueve generaciones, giras para decidir qué pasa a continuación e intentas llegar al Campeón con lo que te den las ruletas. Guarda Pokémon en el PC y está en seis idiomas.",
   },
 ];
 

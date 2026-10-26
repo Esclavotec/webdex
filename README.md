@@ -174,7 +174,7 @@ Enlace directo al tablón abierto: `https://webdex.onrender.com/#centro`.
 
 | Dónde | Qué |
 |---|---|
-| Navegador | Nombre y mensaje obligatorios, URL válida en sugerencias, filtro de palabrotas, un mensaje cada 30 s |
+| Navegador | Nombre y mensaje obligatorios, URL válida en sugerencias, filtro de palabrotas, 10 s de espera entre mensajes con cuenta atrás en el botón |
 | Servidor (`firestore.rules`) | Solo los campos `nombre` (≤ 40), `tipo` (comentario, sugerencia o aviso), `texto` (≤ 500), `url` (≤ 200) y `fecha` puesta por el servidor. Nadie puede editar ni borrar desde la web |
 | Al mostrar | Todo se pinta como texto plano (`textContent`), así que no se puede inyectar HTML ni scripts; los enlaces llevan `rel="nofollow ugc"` |
 
@@ -216,11 +216,16 @@ En el artefacto de Claude el tablón no puede conectarse, porque bloquea las con
 
 | **v3.2**: las 7 fichas reproducen su MP3 de Luisa (20–24 s cada uno); 🔇 lo corta; consola sin errores | ✅ |
 | **v3.2**: el pie muestra la misión del proyecto | ✅ |
-
-| **v4**: tablón contra un Firestore simulado: sin conexión avisa; validaciones (nombre, palabrotas, URL); envío y lista ordenada; espera de 30 s; HTML inyectado se ve como texto; Escape cierra | ✅ |
+| **v4**: tablón contra un Firestore simulado: sin conexión avisa; validaciones (nombre, palabrotas, URL); envío y lista ordenada; HTML inyectado se ve como texto; Escape cierra | ✅ |
 | **v4**: tablón en móvil a todo el ancho, sin scroll lateral | ✅ |
+| **v4.1**: sin la regla `hidden` del artefacto (como en Render), el panel empieza cerrado y se cierra con ✕ y con Escape | ✅ |
+| **v4.1**: tras enviar, el botón cuenta de 10 a 0 y se reactiva; se mantienen nombre y tipo; un segundo envío de otro tipo funciona | ✅ |
 
 ## Cambios
+
+- **v4.1**
+  - Arreglo: el Centro Pokémon no se podía cerrar en la web pública. Se añade la regla global `[hidden] { display: none !important; }`.
+  - La espera entre mensajes baja de 30 a 10 s y se ve como cuenta atrás en el botón; al terminar avisa "¡Listo! Puedes enviar otro mensaje".
 
 - **v4**: tablón "Centro Pokémon" con comentarios, sugerencias y avisos públicos (Firebase Firestore + `firestore.rules`).
 - **v3.2**

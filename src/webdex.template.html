@@ -30,6 +30,9 @@
   --f-body: "Chakra Petch", "Segoe UI", system-ui, sans-serif;
 }
 * { box-sizing: border-box; }
+/* El atributo hidden siempre gana: sin esto, reglas como .board { display: grid } lo anulan
+   y el panel no se puede cerrar (en el artefacto lo añadía Claude; en Render no). */
+[hidden] { display: none !important; }
 html, body { min-height: 100%; }
 body {
   background: radial-gradient(ellipse at 50% 0%, #2a2230 0%, var(--bg) 60%);
@@ -716,7 +719,7 @@ const KINDS = {
   sugerencia: { label: "Sugerir web", color: "#5FA83A" },
   aviso:      { label: "Aviso",       color: "#E0B21B" },
 };
-const LIMITS = { nombre: 40, texto: 500, url: 200, esperaMs: 30000 };
+const LIMITS = { nombre: 40, texto: 500, url: 200, esperaMs: 10000 }; // espera antispam entre mensajes
 // Filtro sencillo de palabras malsonantes (se comparan sin tildes y en minúsculas).
 const BAD_WORDS = ["puta", "puto", "mierda", "pendejo", "cabron", "gilipollas", "imbecil", "idiota", "estupido", "marica", "verga", "coño", "concha", "fuck", "shit"];
 
@@ -816,11 +819,30 @@ function readForm() {
 function lastPost() { try { return +localStorage.getItem("webdex-ultimo-mensaje") || 0; } catch (e) { return board.last || 0; } }
 function markPost() { board.last = Date.now(); try { localStorage.setItem("webdex-ultimo-mensaje", String(board.last)); } catch (e) {} }
 
+// Cuenta atrás visible en el botón tras enviar; al terminar, se puede enviar otro mensaje.
+function cooldown() {
+  clearInterval(board.timer);
+  const tick = () => {
+    const left = Math.ceil((LIMITS.esperaMs - (Date.now() - lastPost())) / 1000);
+    if (left > 0) {
+      board.cooling = true;
+      $("bSend").disabled = true; $("bSend").textContent = `ESPERA ${left} s…`;
+      return;
+    }
+    clearInterval(board.timer);
+    const wasCooling = board.cooling;
+    board.cooling = false;
+    $("bSend").disabled = false; $("bSend").textContent = "▶ ENVIAR";
+    if (wasCooling) setStatus("¡Listo! Puedes enviar otro mensaje.", "ok");
+  };
+  tick();
+  board.timer = setInterval(tick, 250);
+}
+
 async function sendMessage(e) {
   e.preventDefault();
   if (!board.configured) { setStatus("El Centro Pokémon todavía no está conectado.", "err"); return; }
-  const wait = LIMITS.esperaMs - (Date.now() - lastPost());
-  if (wait > 0) { setStatus(`Tu Pokémon está descansando. Espera ${Math.ceil(wait / 1000)} s.`, "err"); return; }
+  if (LIMITS.esperaMs - (Date.now() - lastPost()) > 0) { cooldown(); return; }
   const m = readForm();
   if (m.error) { setStatus(m.error, "err"); return; }
   $("bSend").disabled = true; setStatus("Enviando…");
@@ -838,12 +860,13 @@ async function sendMessage(e) {
     });
     if (!res.ok) throw new Error("HTTP " + res.status);
     markPost();
+    // Se vacían mensaje y URL; el nombre y el tipo elegido se mantienen para el siguiente envío.
     $("bText").value = ""; $("bUrl").value = "";
     setStatus("¡Mensaje enviado! Gracias, entrenador.", "ok");
+    cooldown();
     await loadMessages();
   } catch (err) {
     setStatus("No se pudo enviar. Inténtalo de nuevo en un momento.", "err");
-  } finally {
     $("bSend").disabled = false;
   }
 }
@@ -852,7 +875,7 @@ function toggleBoard(show = !board.open) {
   board.open = show;
   $("board").hidden = !show; $("boardBtn").hidden = show;
   $("boardBtn").setAttribute("aria-expanded", String(show));
-  if (show) { loadMessages(); $("bName").focus(); } else { $("boardBtn").focus(); }
+  if (show) { loadMessages(); cooldown(); $("bName").focus(); } else { $("boardBtn").focus(); }
 }
 $("boardBtn").onclick = () => toggleBoard(true);
 $("boardClose").onclick = () => toggleBoard(false);
